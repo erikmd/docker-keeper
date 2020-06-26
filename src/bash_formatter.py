@@ -13,13 +13,13 @@ import re
 
 def translate(glob, greedy=False):
     """Translate a simple glob expression to a (non-anchored) regexp."""
-    questionmark = '.'
+    qmark = '.'
     if greedy:
         star = '.*'
     else:
         star = '.*?'
 
-    inner = lambda s: questionmark.join(map(re.escape, s.split('?')))
+    inner = lambda s: qmark.join(map(re.escape, s.split('?')))  # noqa: E731
 
     return star.join(map(inner, glob.split('*')))
 
@@ -84,11 +84,11 @@ class BashLike(Formatter):
 
         return obj, first
 
+
 ###############################################################################
 # Test suite, cf. <https://docs.python-guide.org/writing/tests/>
 # $ pip3 install pytest
 # $ py.test bash_formatter.py
-
 
 class Dummy():
     _val = None
