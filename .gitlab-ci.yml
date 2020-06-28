@@ -16,6 +16,14 @@ lint-python:
     - pip install --no-cache-dir -r requirements_lint.txt
     - flake8 *.py
 
+lint-script:
+  stage: lint
+  image:
+    name: koalaman/shellcheck-alpine:stable
+    entrypoint: ["/bin/sh"]
+  script:
+    - shellcheck --color=always gitlab_functions.sh
+
 test-python:
   stage: test
   extends: .python
