@@ -5,7 +5,7 @@ stages:
   - test
 
 .python:
-  image: python:3
+  image: python:3-alpine
   before_script:
     - python --version
 
