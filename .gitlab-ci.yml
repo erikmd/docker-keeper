@@ -20,7 +20,7 @@ lint-script:
   stage: lint
   image:
     name: koalaman/shellcheck-alpine:stable
-    entrypoint: ["/bin/sh"]
+    entrypoint: ["/bin/ash", "-c"]
   script:
     - shellcheck --color=always gitlab_functions.sh
 
