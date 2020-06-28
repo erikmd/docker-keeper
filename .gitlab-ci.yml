@@ -8,17 +8,18 @@ stages:
   image: python:3
   before_script:
     - python --version
-    - pip install --no-cache-dir -r requirements.txt
 
 lint-python:
   stage: lint
   extends: .python
   script:
+    - pip install --no-cache-dir -r requirements_lint.txt
     - flake8 *.py
 
 test-python:
   stage: test
   extends: .python
   script:
+    - pip install --no-cache-dir -r requirements.txt
     - ./keeper.py --version
     - pytest *.py
