@@ -506,7 +506,7 @@ def get_nightly_only(spec, build_data_all):
 
 def get_files_only(build_data_all, items_filename):
     with open(items_filename, 'r') as fh:
-        dockerfiles = fh.readlines()
+        dockerfiles = [item.strip() for item in fh.readlines()]
 
     # TODO later-on: fix (dockerfile / path) semantics
     def matching(item):
@@ -517,7 +517,7 @@ def get_files_only(build_data_all, items_filename):
 
 def get_tags_only(build_data_all, items_filename):
     with open(items_filename, 'r') as fh:
-        tags = fh.readlines()
+        tags = [item.strip() for item in fh.readlines()]
 
     def matching(item):
         return meet_list(item['tags'], tags)
