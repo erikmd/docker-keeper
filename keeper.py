@@ -508,9 +508,15 @@ def get_nightly_only(spec):
     return get_list_dict_dockerfile_matrix_tags_args(spec2)
 
 
+def print_list(title, seq):
+    print(title + ':' + ''.join(map(lambda e: '\n- ' + e, seq)))
+
+
 def get_files_only(build_data_all, items_filename):
     with open(items_filename, 'r') as fh:
         dockerfiles = [item.strip() for item in fh.readlines()]
+
+    print_list('Specified Dockerfiles:', dockerfiles)
 
     # TODO later-on: fix (dockerfile / path) semantics
     def matching(item):
@@ -522,6 +528,8 @@ def get_files_only(build_data_all, items_filename):
 def get_tags_only(build_data_all, items_filename):
     with open(items_filename, 'r') as fh:
         tags = [item.strip() for item in fh.readlines()]
+
+    print_list('Specified tags:', tags)
 
     def matching(item):
         return meet_list(item['tags'], tags)
