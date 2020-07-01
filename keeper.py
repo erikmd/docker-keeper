@@ -562,6 +562,10 @@ def equalize_args(record):
     return res
 
 
+def first_shortest_tag(list_tags):
+    return sorted(list_tags, key=(lambda s: (len(s), s)))[0]
+
+
 def generate_config(docker_repo):
     data = read_build_data_chosen()
 
@@ -619,7 +623,7 @@ stages:
     for item in data:
         job_id += 1
         yamlstr_jobs += """
-deploy_{var_job_id}:
+deploy_{var_job_id}_{var_some_real_tag}:
   extends: .docker-deploy
   script: |
     /usr/bin/env bash -e -c '
@@ -637,7 +641,8 @@ deploy_{var_job_id}:
            var_keeper_subtree=get_script_directory(),
            var_hub_repo=docker_repo,
            var_one_tag=("image_%d" % job_id),
-           var_job_id=job_id)
+           var_job_id=job_id,
+           var_some_real_tag=first_shortest_tag(item['tags']))
 
     return yamlstr_init.format(var_hub_repo=docker_repo,
                                var_jobs=yamlstr_jobs)
@@ -851,6 +856,10 @@ def test_meet_list():
     assert not meet_list([], [2, 3])
     assert not meet_list([1, 2], [3])
     assert meet_list([1, 2], [2, 3])
+
+
+def test_first_shortest_tag():
+    assert first_shortest_tag(['BB', 'AA', 'z', 'y']) == 'y'
 
 
 if __name__ == "__main__":
