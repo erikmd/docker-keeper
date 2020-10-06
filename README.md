@@ -40,4 +40,4 @@ keeper.py --help
 
 * Fork <https://gitlab.com/erikmd/docker-keeper-template>.
 
-* Follow the instructions of the README.md in your fork.
+* Follow the instructions from the [docker-keeper wiki](https://gitlab.com/erikmd/docker-keeper/-/wikis/home#initial-setup).
