@@ -121,7 +121,8 @@ prepare-artifacts:
         else
           run cat "$ITEMS"
         fi
-        run "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-keywords "$ITEMS"
+        run "$KEEPER_SUBTREE/keeper.py" \
+          write-artifacts --rebuild-keywords "$ITEMS"
       else
         echo "Error: unexpected value CRON_MODE='$CRON_MODE'."
         false
