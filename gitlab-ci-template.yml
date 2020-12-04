@@ -123,6 +123,15 @@ prepare-artifacts:
         fi
         run "$KEEPER_SUBTREE/keeper.py" \
           write-artifacts --rebuild-keywords "$ITEMS"
+      elif [ "$CRON_MODE" = "rebuild-keyword" ]; then
+        if [ -z "$ITEM" ]; then
+          echo "Error: variable ITEM is missing (CRON_MODE='$CRON_MODE')."
+          false
+        else
+          run echo "$ITEM"
+        fi
+        run "$KEEPER_SUBTREE/keeper.py" \
+          write-artifacts --rebuild-keyword "$ITEM"
       else
         echo "Error: unexpected value CRON_MODE='$CRON_MODE'."
         false

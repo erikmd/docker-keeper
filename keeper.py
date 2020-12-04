@@ -556,6 +556,15 @@ def get_keywords_only(build_data_all, items_filename):
     return list(filter(matching, build_data_all))
 
 
+def get_keyword_only(build_data_all, keyword):
+    print('Specified keyword: %s' % keyword)
+
+    def matching(item):
+        return keyword in item['keywords']
+
+    return list(filter(matching, build_data_all))
+
+
 def get_version():
     with open(os.path.join(get_script_directory(), 'VERSION'), 'r') as f:
         version = f.read().strip()
@@ -763,11 +772,21 @@ def main(args):
         elif args[1] == '--rebuild-keywords':
             if len(args) != 3:
                 print_stderr("Error: "
-                             "--rebuild-files expects one argument exactly."
+                             "--rebuild-keywords expects one argument exactly."
                              "\nWas: %s" % args)
                 usage()
                 exit(1)
             rebuild_keywords_only = get_keywords_only(build_data_all, args[2])
+            build_data_tags = merge_data(build_data_min, rebuild_keywords_only)
+            write_build_data_chosen(build_data_tags)
+        elif args[1] == '--rebuild-keyword':
+            if len(args) != 3:
+                print_stderr("Error: "
+                             "--rebuild-keyword expects one argument exactly."
+                             "\nWas: %s" % args)
+                usage()
+                exit(1)
+            rebuild_keywords_only = get_keyword_only(build_data_all, args[2])
             build_data_tags = merge_data(build_data_min, rebuild_keywords_only)
             write_build_data_chosen(build_data_tags)
         else:

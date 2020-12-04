@@ -20,6 +20,7 @@ keeper.py write-artifacts [OPTION]
         --rebuild-files FILE (rebuild images with Dockerfile mentioned in FILE)
         --rebuild-tags FILE (rebuild images with tag mentioned in FILE)
         --rebuild-keywords FILE (rebuild images with keyword mentioned in FILE)
+        --rebuild-keyword KEYWORD (rebuild images with specified keyword)
 
 keeper.py generate-config
     Print a GitLab CI YAML config to standard output.
