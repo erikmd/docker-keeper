@@ -86,24 +86,34 @@ prepare-artifacts:
     - echo "$CI_JOB_URL" > generated/CI_JOB_URL.txt
     - |
       # Launch keeper.py with proper options
+      run() {
+        echo -n 'RUN '
+        for arg; do printf "'%s' " "${arg//\'/\'\\\'\'}"; done
+        echo
+        "$@"
+      }
       if [ -z "$CRON_MODE" ]; then
-        "$KEEPER_SUBTREE/keeper.py" write-artifacts --minimal
+        run "$KEEPER_SUBTREE/keeper.py" write-artifacts --minimal
       elif [ "$CRON_MODE" = "nightly" ]; then
-        "$KEEPER_SUBTREE/keeper.py" write-artifacts --nightly
+        run "$KEEPER_SUBTREE/keeper.py" write-artifacts --nightly
       elif [ "$CRON_MODE" = "rebuild-all" ]; then
-        "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-all
+        run "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-all
       elif [ "$CRON_MODE" = "rebuild-files" ]; then
         if [ -z "$ITEMS" ]; then
-          echo "Error: file variable ITEMS is missing."
+          echo "Error: file variable ITEMS is missing (CRON_MODE='$CRON_MODE')."
           false
+        else
+          run cat "$ITEMS"
         fi
-        "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-files "$ITEMS"
+        run "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-files "$ITEMS"
       elif [ "$CRON_MODE" = "rebuild-tags" ]; then
         if [ -z "$ITEMS" ]; then
-          echo "Error: file variable ITEMS is missing."
+          echo "Error: file variable ITEMS is missing (CRON_MODE='$CRON_MODE')."
           false
+        else
+          run cat "$ITEMS"
         fi
-        "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-tags "$ITEMS"
+        run "$KEEPER_SUBTREE/keeper.py" write-artifacts --rebuild-tags "$ITEMS"
       else
         echo "Error: unexpected value CRON_MODE='$CRON_MODE'."
         false
