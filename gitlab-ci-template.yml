@@ -32,14 +32,13 @@
 #   - Run verification that the docker-make subtree is up-to-date (once a day)
 # - On manual pipelines:
 #   - Run relevant jobs for master (taking account --rebuild or so flags)
-#   - [TODO] Document the procedure to rebuild images
+#   - Document the procedure to rebuild images
 #
-# - [TODO] documentation to update docker-keeper using git-subtree
+# - documentation to update docker-keeper using git-subtree
 # - [TODO] documentation suggesting Dockerfile sources
 #
 # - [TODO] docker-base & docker-coq: CONTRIBUTE.md → GitHub PRs
-# - [TODO] docker-keeper-demo: MWE
-# - [TODO] docker-keeper-template: 'active: false', READMEs, link to MWE
+# - docker-keeper-template: 'active: false', link to wiki
 
 variables:
   # default relative path (subtree prefix)
