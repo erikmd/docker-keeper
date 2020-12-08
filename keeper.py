@@ -634,6 +634,10 @@ def indent_script(list_after_deploy, indent_level, start=False):
         return ""
 
 
+def escape_single_quotes(script):
+    return script.replace("'", "'\\''")
+
+
 def generate_config(docker_repo):
     data = read_build_data_chosen()
 
@@ -714,7 +718,8 @@ deploy_{var_job_id}_{var_some_real_tag}:
            var_one_tag=("image_%d" % job_id),
            var_job_id=job_id,
            var_some_real_tag=first_shortest_tag(item['tags']),
-           var_after_deploy=indent_script(item['after_deploy_script'], 6))
+           var_after_deploy=escape_single_quotes(
+               indent_script(item['after_deploy_script'], 6)))
 
     return yamlstr_init.format(var_hub_repo=docker_repo,
                                var_jobs=yamlstr_jobs)
