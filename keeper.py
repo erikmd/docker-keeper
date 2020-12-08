@@ -622,11 +622,14 @@ def first_shortest_tag(list_tags):
     return sorted(list_tags, key=(lambda s: (len(s), s)))[0]
 
 
-def indent_script(list_after_deploy, indent_level):
+def indent_script(list_after_deploy, indent_level, start=False):
     check_list(list_after_deploy)
     if list_after_deploy:
         indent = " " * indent_level
-        return indent + ('\n' + indent).join(list_after_deploy)
+        if start:
+            return indent + ('\n' + indent).join(list_after_deploy)
+        else:
+            return ('\n' + indent).join(list_after_deploy)
     else:
         return ""
 
@@ -701,8 +704,7 @@ deploy_{var_job_id}_{var_some_real_tag}:
       dk_build "{var_context}" "{var_dockerfile}" "{var_one_tag}" {vars_args}
       dk_push "{var_hub_repo}" "{var_one_tag}" {vars_tags}
       dk_logout
-      {var_after_deploy}
-    ' bash
+      {var_after_deploy}' bash
 """.format(var_context=item['context'],
            var_dockerfile=item['dockerfile'],
            vars_args=('"%s"' % '" "'.join(equalize_args(item['args']))),
@@ -955,8 +957,10 @@ def test_first_shortest_tag():
 
 
 def test_indent_script():
-    assert indent_script(['echo ok', 'echo "The End"'], 6) == \
+    assert indent_script(['echo ok', 'echo "The End"'], 6, True) == \
         '      echo ok\n      echo "The End"'
+    assert indent_script(['echo ok', 'echo "The End"'], 6) == \
+        'echo ok\n      echo "The End"'
 
 
 if __name__ == "__main__":
