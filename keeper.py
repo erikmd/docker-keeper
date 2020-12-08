@@ -253,6 +253,7 @@ def get_list_dict_dockerfile_matrix_tags_args(json):
        - "tags": […]
        - "args": […]
        - "keywords": […]
+       - "after_deploy_script": […]
     """
     # TODO later-on: fix (dockerfile / path) semantics
     res = []
@@ -273,6 +274,10 @@ def get_list_dict_dockerfile_matrix_tags_args(json):
             raw_keywords = item['build']['keywords']
         else:
             raw_keywords = []
+        if 'after_deploy_script' in item['build']:
+            raw_after_deploy = item['build']['after_deploy_script']
+        else:
+            raw_after_deploy = []
         for matrix in list_matrix:
             tags = []
             for tag_item in raw_tags:
@@ -292,10 +297,13 @@ def get_list_dict_dockerfile_matrix_tags_args(json):
                 args[arg_key] = eval_bashlike(arg_template, matrix, defaults)
             keywords = list(map(lambda k: eval_bashlike(k, matrix, defaults),
                                 raw_keywords))
+            after_deploy = raw_after_deploy  # no Formatter interpolation
+            # otherwise sth like ${BASH_VARIABLE} would trigger an error.
             newitem = {"context": context, "dockerfile": dfile,
                        "path": path,
                        "matrix": matrix, "tags": tags, "args": args,
-                       "keywords": keywords}
+                       "keywords": keywords,
+                       "after_deploy_script": after_deploy}
             res.append(newitem)
     if debug:
         dump(res)
@@ -594,6 +602,15 @@ def first_shortest_tag(list_tags):
     return sorted(list_tags, key=(lambda s: (len(s), s)))[0]
 
 
+def indent_script(list_after_deploy, indent_level):
+    check_list(list_after_deploy)
+    if list_after_deploy:
+        indent = " " * indent_level
+        return indent + ('\n' + indent).join(list_after_deploy)
+    else:
+        return ""
+
+
 def generate_config(docker_repo):
     data = read_build_data_chosen()
 
@@ -634,6 +651,7 @@ stages:
     HUB_REPO: "{var_hub_repo}"
     # HUB_USER: # protected variable
     # HUB_TOKEN: # protected variable
+    # FOO_TOKEN: # other, user-defined tokens for after_deploy_script
   image: docker:latest
   services:
     - docker:dind
@@ -642,6 +660,8 @@ stages:
     - echo $0
     - apk add --no-cache bash
     - /usr/bin/env bash --version
+    - apk add --no-cache curl
+    - curl --version
     - pwd
 
 {var_jobs}"""
@@ -661,6 +681,7 @@ deploy_{var_job_id}_{var_some_real_tag}:
       dk_build "{var_context}" "{var_dockerfile}" "{var_one_tag}" {vars_args}
       dk_push "{var_hub_repo}" "{var_one_tag}" {vars_tags}
       dk_logout
+      {var_after_deploy}
     ' bash
 """.format(var_context=item['context'],
            var_dockerfile=item['dockerfile'],
@@ -670,7 +691,8 @@ deploy_{var_job_id}_{var_some_real_tag}:
            var_hub_repo=docker_repo,
            var_one_tag=("image_%d" % job_id),
            var_job_id=job_id,
-           var_some_real_tag=first_shortest_tag(item['tags']))
+           var_some_real_tag=first_shortest_tag(item['tags']),
+           var_after_deploy=indent_script(item['after_deploy_script'], 6))
 
     return yamlstr_init.format(var_hub_repo=docker_repo,
                                var_jobs=yamlstr_jobs)
@@ -910,6 +932,11 @@ def test_meet_list():
 
 def test_first_shortest_tag():
     assert first_shortest_tag(['BB', 'AA', 'z', 'y']) == 'y'
+
+
+def test_indent_script():
+    assert indent_script(['echo ok', 'echo "The End"'], 6) == \
+        '      echo ok\n      echo "The End"'
 
 
 if __name__ == "__main__":
