@@ -274,8 +274,19 @@ def get_list_dict_dockerfile_matrix_tags_args(json):
             raw_keywords = item['build']['keywords']
         else:
             raw_keywords = []
-        if 'after_deploy_script' in item['build']:
-            raw_after_deploy = item['build']['after_deploy_script']
+        if 'after_deploy' in item['build']:
+            raw_after_deploy = item['build']['after_deploy']
+            # support both
+            #   after_deploy: 'code'
+            # and
+            #   after_deploy:
+            #     - 'code'
+            # as well as
+            #   after_deploy:
+            #     - script: 'code'
+            #       if: '{matrix[base]} == 4.07.1-flambda'
+            if isinstance(raw_after_deploy, str):
+                raw_after_deploy = [raw_after_deploy]
         else:
             raw_after_deploy = []
         for matrix in list_matrix:
@@ -297,13 +308,22 @@ def get_list_dict_dockerfile_matrix_tags_args(json):
                 args[arg_key] = eval_bashlike(arg_template, matrix, defaults)
             keywords = list(map(lambda k: eval_bashlike(k, matrix, defaults),
                                 raw_keywords))
-            after_deploy = raw_after_deploy  # no Formatter interpolation
-            # otherwise sth like ${BASH_VARIABLE} would trigger an error.
+            after_deploy_script = []
+            for ad_item in raw_after_deploy:
+                if isinstance(ad_item, str):
+                    after_deploy_script.append(ad_item)  # no { } interpolation
+                    # otherwise sth like ${BASH_VARIABLE} would raise an error
+                else:
+                    script_item = ad_item['script']
+                    script_cond = ad_item['if'] if 'if' in ad_item else None
+                    if eval_if(script_cond, matrix):
+                        # otherwise skip the script item
+                        after_deploy_script.append(script_item)
             newitem = {"context": context, "dockerfile": dfile,
                        "path": path,
                        "matrix": matrix, "tags": tags, "args": args,
                        "keywords": keywords,
-                       "after_deploy_script": after_deploy}
+                       "after_deploy_script": after_deploy_script}
             res.append(newitem)
     if debug:
         dump(res)
