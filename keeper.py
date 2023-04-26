@@ -933,11 +933,11 @@ def main(args):
 
 def test_get_commit():
     github = {"fetcher": "github", "repo": "coq/coq", "branch": "v8.0"}
-    github_expected = "6aecb9a1fe3f9b027dfd702931298bc61d40b6d3"
+    github_expected = "f7777da84893a182f566667426d13dd43f2ee45a"
     github_actual = get_commit(github)
     assert github_actual == github_expected
     gitlab = {"fetcher": "gitlab", "repo": "coq/coq", "branch": "v8.0"}
-    gitlab_expected = "6aecb9a1fe3f9b027dfd702931298bc61d40b6d3"
+    gitlab_expected = "f7777da84893a182f566667426d13dd43f2ee45a"
     gitlab_actual = get_commit(gitlab)
     assert gitlab_actual == gitlab_expected
 
