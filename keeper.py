@@ -508,7 +508,8 @@ def write_remote_tags(remote_tags):
 
 def write_gitlab_ci_tags(gitlab_ci_tags):
     check_list(gitlab_ci_tags)
-    write_text_artifact(oneliner_str_of_list(gitlab_ci_tags), 'gitlab_ci_tags.txt')
+    write_text_artifact(oneliner_str_of_list(gitlab_ci_tags),
+                        'gitlab_ci_tags.txt')
 
 
 def write_remote_tags_to_rm(remote_tags_to_rm):
