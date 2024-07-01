@@ -186,7 +186,7 @@ prepare-artifacts:
         false
       fi
       # BEGIN main command
-      run "$KEEPER_SUBTREE/keeper.py" write-artifacts "${DOCKER_KEEPER_CMDS[@]}"
+      run "$KEEPER_SUBTREE/keeper.py" write-artifacts "${DOCKER_KEEPER_CMDS[@]/#/--}"
       # END main command
   artifacts:
     name: "docker-keeper_$CI_JOB_NAME"
