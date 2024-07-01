@@ -1,5 +1,5 @@
 ---
-# Author: Erik Martin-Dorel, 2020
+# Author: Erik Martin-Dorel, 2020-2024
 
 # Design:
 # - docker-keeper: Lint python scripts (Use flake8)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2020  Érik Martin-Dorel
+# Copyright (c) 2020-2024  Érik Martin-Dorel
 #
 # Contributed under the terms of the MIT license,
 # cf. <https://spdx.org/licenses/MIT.html>
