@@ -29,8 +29,7 @@ docker-keeper offers customizable propagate strategies (declarative cURL calls)
 It supports both single modes given in variable CRON_MODE (and optionally ITEM)
 and multiple modes, from CLI as well as from HEAD's commit message, typically:
 $ git commit --allow-empty -m "…" -m "docker-keeper: rebuild-all"
-$ git commit -m "docker-keeper: propagate: ID: minimal; propagate: ID: nightly"
-$ git commit -m "docker-keeper: propagate: ID: nightly"
+$ git commit -m "docker-keeper: propagate: I1: minimal; propagate: I2: nightly"
 $ git commit -m "docker-keeper: propagate: ID: rebuild-all"
 $ git commit -m "docker-keeper: propagate: ID: rebuild-keyword: KW1,KW2"
 $ git commit -m "docker-keeper: propagate: ()"
