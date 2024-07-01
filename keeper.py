@@ -554,7 +554,6 @@ def get_script_rel2_directory():
     keeper_dir = get_script_directory()
     keeper_rel_dir = os.path.relpath(
         keeper_dir, os.path.dirname(os.path.dirname(keeper_dir)))
-    print(keeper_rel_dir)
     return check_trim_relative_path(keeper_rel_dir)
 
 
@@ -640,6 +639,10 @@ def read_json_artifact(basename):
 
 def read_build_data_chosen():
     return read_json_artifact('build_data_chosen.json')
+
+
+def read_propagate():
+    return read_json_artifact('propagate.json')
 
 
 def write_readme(base_url, build_data):
@@ -1051,7 +1054,7 @@ def escape_single_quotes(script):
     return script.replace("'", "'\\''")
 
 
-def generate_config(docker_repo, gitlab_ci_tags):
+def generate_config(docker_repo, gitlab_ci_tags, propagate_data):
     data = read_build_data_chosen()
 
     if gitlab_ci_tags:
@@ -1100,6 +1103,7 @@ noop:
 stages:
   - deploy
   - remove
+  - propagate
 
 # Changes below (or jobs extending .docker-deploy) should be carefully
 # reviewed to avoid leaks of HUB_TOKEN
@@ -1117,6 +1121,20 @@ stages:
     - docker:dind
   before_script:
     - cat /proc/cpuinfo /proc/meminfo
+    - echo $0
+    - apk add --no-cache bash
+    - /usr/bin/env bash --version
+    - apk add --no-cache curl
+    - curl --version
+    - pwd
+
+.curl-propagate:
+  stage: propagate
+  only:
+    - master
+  variables:
+  image: alpine:latest
+  before_script:
     - echo $0
     - apk add --no-cache bash
     - /usr/bin/env bash --version
@@ -1154,15 +1172,46 @@ deploy_{var_job_id}_{var_some_real_tag}:
            var_after_deploy=escape_single_quotes(
                indent_script(item['after_deploy_script'], 6)))
 
+    curl_propagate = []
+    for slug in propagate_data:
+        prop = propagate_data[slug]
+        strat = prop['strategy']
+        if 'item' in strat:
+            item = ','.join(strat['item'])
+        else:
+            item = ''
+        next_curl = ('dk_curl "{var_slug}" "{var_tok}" "{var_dom}" "{var_prj}"'
+                     + ' "{var_mod}" "{var_it}"').format(
+                         var_slug=slug,
+                         var_tok='$' + prop['api_token_env_var'],
+                         var_dom=prop['gitlab_domain'],
+                         var_prj=prop['gitlab_project'],
+                         var_mod=prop['strategy']['mode'],
+                         var_it=item)
+        curl_propagate.append(next_curl)
+
+    yamlstr_jobs += """
+propagate:
+  extends: .curl-propagate
+  script: |
+    /usr/bin/env bash -e -c '
+      echo $0
+      . "{var_keeper_subtree}/gitlab_functions.sh"
+      {var_curl_propagate}
+    ' bash
+""".format(var_keeper_subtree=keeper_subtree,
+           var_curl_propagate=indent_script(curl_propagate, 6))
+
     return yamlstr_init.format(var_gitlab_ci_tags=str_gitlab_ci_tags,
                                var_hub_repo=docker_repo,
                                var_jobs=yamlstr_jobs)
 
 
-def main_generate_config():
+def main_generate_config(upstream_version):
     spec = load_spec()  # could be avoided by writing yet another .json…
+    propagate_data = read_propagate()
     print(generate_config(spec['docker_repo'],
-                          get_gitlab_ci_tags(spec)))
+                          get_gitlab_ci_tags(spec), propagate_data))
 
 
 def main_write_artifacts(upstream_version, minimal,  # <- input ignored
@@ -1421,7 +1470,7 @@ def main(argv):
 
     # main
     args = vars(parser.parse_args(argv))
-    if args["debug"]:
+    if 'debug' in args and args['debug']:
         print_stderr('argparse:')
         print_stderr(args)
     if args["upstream_version"]:
