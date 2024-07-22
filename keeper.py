@@ -1621,6 +1621,15 @@ def test_subset_list():
     assert not subset_list(l2, l0)
 
 
+def test_subset_comma_list():
+    s1 = '8.19'
+    s2 = '8.18,8.19,8.20,dev'
+    s3 = '8.4'
+    s4 = '8.40,dev'
+    assert subset_comma_list(s1, s2)
+    assert not subset_comma_list(s3, s4)
+
+
 def test_equalize_args():
     assert (equalize_args({"VAR1": "value1", "VAR2": "value2"}) ==
             ['VAR1=value1', 'VAR2=value2'])
