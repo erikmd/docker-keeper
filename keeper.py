@@ -254,8 +254,8 @@ def get_commit(commit_api):
         headers = None
         lambda_query = gitlab_lambda_query_sha1
     elif fetcher == 'gitlab.inria.fr':
-        url = ('https://gitlab.inria.fr/api/v4/projects/%s/repository/branches/%s'
-               % (naive_url_encode(repo), naive_url_encode(branch)))
+        url = ('https://%s/api/v4/projects/%s/repository/branches/%s'
+               % (fetcher, naive_url_encode(repo), naive_url_encode(branch)))
         headers = None
         lambda_query = gitlab_lambda_query_sha1
     else:
@@ -1532,11 +1532,13 @@ def main(argv):
 # $ py.test bash_formatter.py
 
 def test_get_commit():
-    github = {"fetcher": "github", "repo": "rocq-prover/rocq", "branch": "v8.1"}
+    github = {"fetcher": "github", "repo": "rocq-prover/rocq",
+              "branch": "v8.1"}
     github_expected = "f7cdf553d983a79fe0fbb08403f6a55230016074"
     github_actual = get_commit(github)
     assert github_actual == github_expected
-    gitlab = {"fetcher": "gitlab.inria.fr", "repo": "coq/coq", "branch": "v8.1"}
+    gitlab = {"fetcher": "gitlab.inria.fr", "repo": "coq/coq",
+              "branch": "v8.1"}
     gitlab_expected = "f7cdf553d983a79fe0fbb08403f6a55230016074"
     gitlab_actual = get_commit(gitlab)
     assert gitlab_actual == gitlab_expected
