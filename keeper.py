@@ -102,9 +102,19 @@ def subset_list(l1, l2):
     return not diff_list(l1, l2)
 
 
-def is_unique(s):
-    """Check if the list s has no duplicate."""
-    return len(s) == len(set(s))
+def get_duplicates(l0):
+    """Return the list of duplicated elements in the list l0."""
+    l1 = list(l0)  # shallow copy
+    s1 = set(l1)  # uniquify without sorting
+    for x in s1:
+        l1.remove(x)
+    return l1
+
+
+def is_unique(l0):
+    """Check if the list l0 has no duplicate."""
+    l1 = get_duplicates(l0)
+    return len(l1) == 0
 
 
 def merge_dict(a, b):
@@ -704,10 +714,12 @@ def get_check_tags(seq):
     res = []
     for e in seq:
         res.extend(e['tags'])
-    if is_unique(res):
+    dupes = get_duplicates(res)
+    if len(dupes) == 0:
         print_stderr("OK: no duplicate tag found.")
     else:
-        error("Error: there are some tags duplicates.")
+        error("Error: there are some tags duplicates (%s)."
+              % ", ".join(dupes))
     return res
 
 
@@ -1602,6 +1614,10 @@ def test_is_unique():
     assert not is_unique(s)
     s = uniqify(s)
     assert is_unique(s)
+
+
+def test_get_duplicates():
+    assert get_duplicates([1, 2, 3, 2, 1]) == [2, 1]
 
 
 def test_uniqify():
